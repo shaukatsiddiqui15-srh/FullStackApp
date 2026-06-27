@@ -1,0 +1,55 @@
+@page "/fetchproducts"
+@inject HttpClient Http
+
+<h3>Product List</h3>
+
+@if (errorMessage is not null)
+{
+    <p style="color:red">@errorMessage</p>
+}
+else if (products is null)
+{
+    <p>Loading...</p>
+}
+else if (products.Length == 0)
+{
+    <p>No products available.</p>
+}
+else
+{
+    <ul>
+        @foreach (var product in products)
+        {
+            <li>@product.Name - $@product.Price (Stock: @product.Stock)</li>
+        }
+    </ul>
+}
+
+@code {
+    private Product[]? products;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            products = await Http.GetFromJsonAsync<Product[]>("/api/products");
+        }
+        catch (HttpRequestException ex)
+        {
+            errorMessage = $"Failed to load products: {ex.Message}";
+        }
+        catch (System.Text.Json.JsonException ex)
+        {
+            errorMessage = $"Failed to parse product data: {ex.Message}";
+        }
+    }
+
+    public class Product
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public double Price { get; set; }
+        public int Stock { get; set; }
+    }
+}
