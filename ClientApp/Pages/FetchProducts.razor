@@ -20,7 +20,13 @@ else
     <ul>
         @foreach (var product in products)
         {
-            <li>@product.Name - $@product.Price (Stock: @product.Stock)</li>
+            <li>
+                @product.Name - $@product.Price (Stock: @product.Stock)
+                @if (product.Category is not null)
+                {
+                    <span> &mdash; Category: @product.Category.Name (#@product.Category.Id)</span>
+                }
+            </li>
         }
     </ul>
 }
@@ -33,7 +39,7 @@ else
     {
         try
         {
-            products = await Http.GetFromJsonAsync<Product[]>("/api/products");
+            products = await Http.GetFromJsonAsync<Product[]>("/api/productlist");
         }
         catch (HttpRequestException ex)
         {
@@ -51,5 +57,12 @@ else
         public string Name { get; set; } = string.Empty;
         public double Price { get; set; }
         public int Stock { get; set; }
+        public Category? Category { get; set; }
+    }
+
+    public class Category
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
     }
 }
